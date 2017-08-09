@@ -139,9 +139,7 @@ bool Serial::open(const string& port_, int baud)
     this->fd = -1;
 
     // Unlock the lock file
-    if (port != "")
-        lockfile_unlock(port.c_str());
-
+    if (port != "") lockfile_unlock(port.c_str());
     this->port = "";
 
     return false;
@@ -194,6 +192,8 @@ int Serial::read(u8 *buf, size_t sz, u64 timeoutUs)
             } else if (ret == 0) {
                 ZCM_DEBUG("ERR: serial device unplugged");
                 close();
+                assert(false && "ERR: serial device unplugged\n" &&
+                       "ZCM does not support reconnecting to serial devices");
                 return -3;
             }
             return ret;
@@ -255,7 +255,7 @@ struct ZCM_TRANS_CLASSNAME : public zcm_trans_t
 
         // build 'options'
         auto *opts = zcm_url_opts(url);
-        for (size_t i = 0; i < opts->numopts; i++)
+        for (size_t i = 0; i < opts->numopts; ++i)
             options[opts->name[i]] = opts->value[i];
 
         baud = 0;
